@@ -46,7 +46,7 @@ fun PictureScreen(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(picture.download_url)
-                        .size(200,200) // Set the target size to load the image at.
+                        .size(200,200)
                         .build()
                 ),
                 contentDescription = null,

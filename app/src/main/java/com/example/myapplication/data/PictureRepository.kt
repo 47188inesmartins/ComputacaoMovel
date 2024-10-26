@@ -12,9 +12,6 @@ interface PictureRepository{
 class DefaultPicturesRepository(
     private val picturesApiService: PictureApiService
 ) : PictureRepository {
-    override suspend fun getPicture(): List<Picture> {
-        val pictures = picturesApiService.getPicture()
-        Log.i("Ines", pictures[0].toString())
-        return pictures
-    }
+    override suspend fun getPicture(): List<Picture> =
+        picturesApiService.getPicture()
 }
