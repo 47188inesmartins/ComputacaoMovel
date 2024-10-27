@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "565496781325",
+    "project_id": "cmove-9e06e",
+    "storage_bucket": "cmove-9e06e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:565496781325:android:dc3cdc9ed9b82649a49344",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmP1ArcVc5-vVhBdmUOrIYSc-t3tWokHY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
