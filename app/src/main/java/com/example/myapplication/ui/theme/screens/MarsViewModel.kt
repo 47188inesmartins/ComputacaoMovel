@@ -9,19 +9,61 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.myapplication.MarsPhotosApplication
+import com.example.myapplication.data.MarsPhotosRepository
 import com.example.myapplication.data.PictureRepository
+import com.example.myapplication.model.MarsPhoto
 import com.example.myapplication.model.Picture
-import com.example.myapplication.PictureApplication
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
+
+/**
+ * UI state for the Home screen
+ */
+data class MarsUiState (
+    val photos: List<MarsPhoto> = emptyList(),
+    val currentPhoto: MarsPhoto? = null
+)
 
 data class PicturesUiState(
     val picturesList: List<Picture> = emptyList(),
     val currentPicture: Picture? = null
 )
 
-class PicturesViewModel (
+
+class MarsViewModel(
+    private val marsPhotosRepository: MarsPhotosRepository,
     private val picturesRepository: PictureRepository
-): ViewModel(){
+) : ViewModel() {
+    /** The mutable State that stores the status of the most recent request */
+    var marsUiState: MarsUiState by mutableStateOf(MarsUiState())
+
+    /**
+     * Call getMarsPhotos() on init so we can display status immediately.
+     */
+    init {
+        getMarsPhotos()
+    }
+
+    /**
+     * Gets Mars photos information from the Mars API Retrofit service and updates the
+     * [MarsPhoto] [List] [MutableList].
+     */
+    private fun getMarsPhotos() {
+        viewModelScope.launch {
+            val getPics = marsPhotosRepository.getMarsPhotos()
+            marsUiState = MarsUiState(
+                getPics,
+                getPics.random()
+            )
+        }
+    }
+
+    fun rollPictureMars() {
+        val newRandomPicture = marsUiState.photos.random()
+        marsUiState = marsUiState.copy(currentPhoto = newRandomPicture)
+    }
 
     var picturesUiState: PicturesUiState by  mutableStateOf(PicturesUiState())
 
@@ -60,13 +102,20 @@ class PicturesViewModel (
         }
     }
 
+    /**
+     * Factory for [MarsViewModel] that takes [MarsPhotosRepository] as a dependency
+     */
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY]
-                        as PictureApplication)
-                val repository = application.container.pictureRepository
-                PicturesViewModel(picturesRepository = repository)
+                val application = (this[APPLICATION_KEY] as MarsPhotosApplication)
+                val marsPhotosRepository = application.container.marsPhotosRepository
+                val picsPhotosRepository = application.container.pictureRepository
+
+                MarsViewModel(
+                    marsPhotosRepository = marsPhotosRepository,
+                    picturesRepository = picsPhotosRepository
+                )
             }
         }
     }

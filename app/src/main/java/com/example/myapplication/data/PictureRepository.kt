@@ -1,6 +1,5 @@
 package com.example.myapplication.data
 
-import android.util.Log
 import com.example.myapplication.model.Picture
 import com.example.myapplication.network.PictureApiService
 

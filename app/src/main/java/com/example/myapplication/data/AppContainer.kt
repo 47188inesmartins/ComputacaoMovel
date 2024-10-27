@@ -1,5 +1,6 @@
 package com.example.myapplication.data
 
+import com.example.myapplication.network.MarsApiService
 import com.example.myapplication.network.PictureApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -8,21 +9,39 @@ import retrofit2.Retrofit
 
 interface AppContainer {
     val pictureRepository: PictureRepository
+    val marsPhotosRepository: MarsPhotosRepository
 }
 
 class DefaultAppContainer() : AppContainer {
 
-    private val BASE_URL = "https://picsum.photos/"
     override val pictureRepository: PictureRepository by lazy {
-        DefaultPicturesRepository(retrofitService)
+        DefaultPicturesRepository(retrofitServicePicsum)
     }
 
-    private val retrofit: Retrofit = Retrofit.Builder()
+    override val marsPhotosRepository: MarsPhotosRepository by lazy {
+            NetworkMarsPhotosRepository(retrofitServiceMars)
+    }
+
+    private val retrofitMars: Retrofit = Retrofit.Builder()
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-        .baseUrl(BASE_URL)
+        .baseUrl(BASE_URL_MARS)
         .build()
 
-    private val retrofitService: PictureApiService by lazy {
-        retrofit.create(PictureApiService::class.java)
+    private val retrofitPicsum: Retrofit = Retrofit.Builder()
+        .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+        .baseUrl(BASE_URL_PICSUM)
+        .build()
+
+    private val retrofitServicePicsum: PictureApiService by lazy {
+        retrofitPicsum.create(PictureApiService::class.java)
+    }
+
+    private val retrofitServiceMars: MarsApiService by lazy {
+        retrofitMars.create(MarsApiService::class.java)
+    }
+
+    companion object {
+        private const val BASE_URL_MARS = "https://android-kotlin-fun-mars-server.appspot.com/"
+        private const val BASE_URL_PICSUM = "https://picsum.photos/"
     }
 }
