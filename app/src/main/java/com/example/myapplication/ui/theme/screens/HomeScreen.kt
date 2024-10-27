@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.theme.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +39,9 @@ import coil.request.ImageRequest
 import com.example.myapplication.R
 import com.example.myapplication.model.MarsPhoto
 import com.example.myapplication.model.Picture
+import kotlinx.coroutines.runBlocking
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -47,6 +50,7 @@ fun HomeScreen(
     val viewModel: MarsViewModel = viewModel(factory = MarsViewModel.Factory)
     val uiState = viewModel.marsUiState
     val uiStatePicSum = viewModel.picturesUiState
+    val rolls = viewModel.rollsUiState
 
         Column(
             modifier = Modifier
@@ -69,6 +73,10 @@ fun HomeScreen(
                 ActionButton({ viewModel.rollPicture() },{ viewModel.rollPictureMars() },"Roll")
                 ActionButton({ viewModel.applyBlur() },{},"Blur")
                 ActionButton({ viewModel.applyGrayScale() },{},"Gray")
+                ActionButton({ runBlocking { viewModel.read() } },{},"Load")
+                ActionButton({ viewModel.saveImage() },{},"Save")
+
+                Text(text = "Rolls: ${rolls.rolls}")
             }
         }
 }

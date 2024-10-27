@@ -13,7 +13,10 @@ import com.example.myapplication.MarsPhotosApplication
 import com.example.myapplication.data.MarsPhotosRepository
 import com.example.myapplication.data.PictureRepository
 import com.example.myapplication.model.MarsPhoto
+import com.example.myapplication.model.PhotosRolls
 import com.example.myapplication.model.Picture
+import com.example.myapplication.network.FireBase
+import com.google.firebase.Firebase
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -31,6 +34,10 @@ data class PicturesUiState(
     val currentPicture: Picture? = null
 )
 
+data class Rolls(
+    val rolls:Int = 0
+)
+
 
 class MarsViewModel(
     private val marsPhotosRepository: MarsPhotosRepository,
@@ -38,12 +45,15 @@ class MarsViewModel(
 ) : ViewModel() {
     /** The mutable State that stores the status of the most recent request */
     var marsUiState: MarsUiState by mutableStateOf(MarsUiState())
-
+    var picturesUiState: PicturesUiState by  mutableStateOf(PicturesUiState())
+    var rollsUiState: Rolls by  mutableStateOf(Rolls())
     /**
      * Call getMarsPhotos() on init so we can display status immediately.
      */
     init {
         getMarsPhotos()
+        getPictures()
+        rollsUiState = rollsUiState.copy(rolls = 0)
     }
 
     /**
@@ -65,11 +75,6 @@ class MarsViewModel(
         marsUiState = marsUiState.copy(currentPhoto = newRandomPicture)
     }
 
-    var picturesUiState: PicturesUiState by  mutableStateOf(PicturesUiState())
-
-    init {
-        getPictures()
-    }
 
     private fun getPictures() {
         viewModelScope.launch {
@@ -100,6 +105,32 @@ class MarsViewModel(
             )
             picturesUiState = picturesUiState.copy(currentPicture = grayScalePicture)
         }
+    }
+
+    fun saveImage(){
+        if(marsUiState.currentPhoto!= null && picturesUiState.currentPicture!=null ){
+            FireBase().savePhotos(
+                marsUiState.currentPhoto!!,
+                picturesUiState.currentPicture!!,
+                rollsUiState.rolls
+            )
+        }
+    }
+
+    suspend fun read(): PhotosRolls? {
+        if(marsUiState.currentPhoto!= null && picturesUiState.currentPicture!=null ) {
+            val read =  FireBase().readPhoto(
+                marsUiState.currentPhoto!!,
+                picturesUiState.currentPicture!!,
+                rollsUiState.rolls
+            )
+            if(read!=null){
+                marsUiState = marsUiState.copy(currentPhoto = read.marsPhoto)
+                picturesUiState = picturesUiState.copy(currentPicture = read.picture)
+                rollsUiState = read.rolls.let { rollsUiState.copy(rolls = it) }
+            }
+        }
+        return null
     }
 
     /**
